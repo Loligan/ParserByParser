@@ -1,13 +1,8 @@
-
-
 import java.io.*;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by meldon on 04.11.16.
- */
 public class Parser {
     static int TOTAL = 0;
     static int GOOD = 0;
@@ -27,17 +22,19 @@ public class Parser {
             br = new BufferedReader(new FileReader(csvFile), 4096);
             int x = 0;
             while ((line = br.readLine()) != null) {
-                GOOD_OR_NO = false;
-                x++;
+                TOTAL++;
                 String[] people = line.split(cvsSplitBy);
-                checkedDate(people);
 
-                if (!GOOD_OR_NO) {
-                    System.out.println(people[0]);
-                    BAD++;
-                } else {
-                    GOOD++;
+                if (checkedName(people)) {
+                    if (checkedDate(people) || checkedBPlace(people) || checkedUniversity(people) || checkedWord(people)) {
+                        GOOD++;
+                    } else {
+                        System.out.println(people[0]);
+                        BAD++;
+                    }
                 }
+
+
             }
             System.out.println(TOTAL + " | " + GOOD + " | " + BAD);
 
@@ -54,7 +51,6 @@ public class Parser {
                 }
             }
         }
-
         return 0;
     }
 
@@ -73,113 +69,114 @@ public class Parser {
         );
     }
 
-    public static void checkedDate(String[] r) {
-
-        TOTAL++;
+    public static boolean checkedDate(String[] r) {
         if (r[4].contains(Split)) {
             String date[] = r[4].split(Split);
             if (date[0].equals(date[1]))
-                checkedName(r);
+                return true;
         } else {
-            checkedBPlace(r);
+            return false;
         }
+        return false;
     }
 
-    public static void checkedName(String[] r) {
-        String names[] = r[2].split(Split);
-        String nameArr1[] = names[0].split(" ");
-        String nameArr2[] = names[1].split(" ");
+    public static boolean checkedName(String[] r) {
+        try {
+            String names[] = r[2].split(Split);
+            String nameArr1[] = names[0].split(" ");
+            String nameArr2[] = names[1].split(" ");
 
-        for (int i = 0; i < nameArr1.length; i++) {
-            for (int j = 0; j < nameArr2.length; j++) {
-                if (nameArr1[i].equals(nameArr2[j])) ;
-                GOOD_OR_NO = true;
+            for (int i = 0; i < nameArr1.length; i++) {
+                for (int j = 0; j < nameArr2.length; j++) {
+                    if (nameArr1[i].equals(nameArr2[j])) ;
+                    return true;
+                }
+
             }
+            return false;
 
-        }
-        if (GOOD_OR_NO) {
-            GOOD_OR_NO = true;
-        } else {
-            GOOD_OR_NO = false;
+        } catch (Exception e) {
+            System.out.println(r[0]);
+            return false;
         }
     }
 
-    public static void checkedBPlace(String[] r) {
+    public static boolean checkedBPlace(String[] r) {
         try {
             if (r[5].contains(Split)) {
                 String place[] = r[5].split(Split);
                 if (place[0].equals(place[1])) {
-                    System.out.println("1");
-                    System.out.println(place[0]+"|"+place[1]);
-                    GOOD_OR_NO = true;
+                    return true;
                 } else {
-                    String[] placeOne = null;
-                    String[] placeTwo = null;
-
-                    if (place[0].contains(",")) {
-                        System.out.println("2");
-                        placeOne = place[0].split(",");
-                    }
-                    if (place[0].contains(" ")) {
-                        System.out.println("3");
-                        placeOne = place[0].split(" ");
+                    Pattern MY_PATTERN = Pattern.compile("([\\w]{1,})");
+                    Matcher m = MY_PATTERN.matcher(place[0]);
+                    m.find();
+                    if (place[1].contains(m.group())) {
+                        return true;
                     } else {
-                        placeOne[0] = place[0];
-                    }
-
-                    if (place[1].contains(",")) {
-                        System.out.println("4");
-                        placeTwo = place[1].split(",");
-                    }
-                    if (place[1].contains(" ")) {
-                        System.out.println("5");
-                        placeTwo = place[1].split(" ");
-                    } else {
-                        System.out.println("6");
-                        placeTwo[1] = place[1];
-                    }
-
-                    if (placeOne[0].equals(placeTwo[0])) {
-                        System.out.println("7");
-                        GOOD_OR_NO = true;
-                    }else {
-                        System.out.println(placeOne[0]+"       "+placeTwo[0]);
+                        return false;
                     }
                 }
-            } else {
-                System.out.println("else");
-                checkedUniversity(r);
             }
-
         } catch (Exception e) {
-            checkedUniversity(r);
+            return false;
         }
+        return false;
 
     }
 
-    public static void checkedUniversity(String[] r) {
+    public static boolean checkedUniversity(String[] r) {
         try {
             if (r[7].contains(Split)) {
                 String university[] = r[7].split(Split);
                 Pattern MY_PATTERN = Pattern.compile("([0-9]{4})");
                 Matcher m = MY_PATTERN.matcher(university[1]);
-
-                if(university[2].contains(m.group(1))){
-                    GOOD_OR_NO = true;
+                boolean b = false;
+                while (m.find()) {
+                    if (university[0].contains(m.group())) {
+                        b = true;
+                    }
+                }
+                if (b) {
+                    return true;
+                } else {
+                    return false;
                 }
             } else {
-                GOOD_OR_NO = false;
+                return false;
             }
         } catch (Exception e) {
-            GOOD_OR_NO = false;
+            return false;
         }
     }
 
+    public static boolean checkedWord(String[] r){
+        try {
+            if (r[8].contains(Split)) {
+                String university[] = r[8].split(Split);
+                Pattern MY_PATTERN = Pattern.compile("([0-9]{4})");
+                Matcher m = MY_PATTERN.matcher(university[1]);
+                boolean b = false;
+                while (m.find()) {
+                    if (university[0].contains(m.group())) {
+                        b = true;
+                    }
+                }
+                if (b) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         Parser.parse();
-        System.out.println();
     }
-
 
 }
