@@ -11,7 +11,7 @@ public class Parser {
     static boolean GOOD_OR_NO;
 
     public static int parse() throws IOException {
-        String csvFile = "C:\\Users\\meldon\\IdeaProjects\\ParserByParser\\src\\main\\java\\people.csv";
+        String csvFile = "/home/meldon/IdeaProjects/ParserByParser/src/main/java/people.csv";
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ";";
@@ -26,10 +26,11 @@ public class Parser {
                 String[] people = line.split(cvsSplitBy);
 
                 if (checkedName(people)) {
-                    if (checkedDate(people) || checkedBPlace(people) || checkedUniversity(people) || checkedWord(people)) {
+                    if (checkedDate(people) || checkedBPlace(people) || checkedUniversity(people) || checkedUniversityByName(people)|| checkedWord(people)||checkedActivity(people) || checkedMName(people)) {
                         GOOD++;
                     } else {
-                        System.out.println(people[0]);
+                            System.out.println(people[0]);
+//                        print_people(people);
                         BAD++;
                     }
                 }
@@ -88,7 +89,7 @@ public class Parser {
 
             for (int i = 0; i < nameArr1.length; i++) {
                 for (int j = 0; j < nameArr2.length; j++) {
-                    if (nameArr1[i].equals(nameArr2[j])) ;
+                    if (nameArr1[i].toUpperCase().equals(nameArr2[j].toUpperCase())) ;
                     return true;
                 }
 
@@ -111,7 +112,7 @@ public class Parser {
                     Pattern MY_PATTERN = Pattern.compile("([\\w]{1,})");
                     Matcher m = MY_PATTERN.matcher(place[0]);
                     m.find();
-                    if (place[1].contains(m.group())) {
+                    if (place[1].toUpperCase().contains(m.group().toUpperCase())) {
                         return true;
                     } else {
                         return false;
@@ -133,7 +134,7 @@ public class Parser {
                 Matcher m = MY_PATTERN.matcher(university[1]);
                 boolean b = false;
                 while (m.find()) {
-                    if (university[0].contains(m.group())) {
+                    if (university[0].toUpperCase().contains(m.group().toUpperCase())) {
                         b = true;
                     }
                 }
@@ -149,6 +150,34 @@ public class Parser {
             return false;
         }
     }
+
+    public static boolean checkedUniversityByName(String[] r) {
+        try {
+            if (r[7].contains(Split)) {
+                String university[] = r[7].split(Split);
+                Pattern MY_PATTERN = Pattern.compile("(?:University of\\s|University\\s)([\\w]*)");
+                Matcher m = MY_PATTERN.matcher(university[1]);
+                boolean b = false;
+                while (m.find()) {
+                    if (university[0].toUpperCase().contains(m.group(1).toUpperCase())) {
+                        b = true;
+                    }
+                }
+                if (b) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
+
 
     public static boolean checkedWord(String[] r){
         try {
@@ -158,7 +187,7 @@ public class Parser {
                 Matcher m = MY_PATTERN.matcher(university[1]);
                 boolean b = false;
                 while (m.find()) {
-                    if (university[0].contains(m.group())) {
+                    if (university[0].toUpperCase().contains(m.group().toUpperCase())) {
                         b = true;
                     }
                 }
@@ -175,6 +204,40 @@ public class Parser {
         }
     }
 
+    public static boolean checkedActivity(String[] r){
+        try {
+            if (r[6].contains(Split)) {
+                String activity[] = r[6].split(Split);
+                Pattern MY_PATTERN = Pattern.compile("([\\w]*)");
+                Matcher m = MY_PATTERN.matcher(activity[1]);
+                boolean b = false;
+                m.find();
+                    if (activity[0].toUpperCase().contains(m.group().toUpperCase())) {
+                       return true;
+                    }
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
+    public static boolean checkedMName(String[] r){
+        try {
+            if(r[3].toUpperCase()!="NULL"){
+                if(r[2].toUpperCase().contains(r[3].toUpperCase())){
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        }catch (Exception e){
+            return false;
+        }
+        return false;
+    }
     public static void main(String[] args) throws IOException {
         Parser.parse();
     }
